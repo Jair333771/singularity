@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass, field
 
 from engine.question import Question
@@ -13,3 +14,7 @@ class SessionState:
 def new_session(questions: list[Question]) -> SessionState:
     level_one = [q.id for q in questions if q.level == 1 and q.status == "reviewed"]
     return SessionState(current_level=1, pending_ids=level_one, status="in_progress")
+
+
+def select_next_id(state: SessionState, rng: random.Random | None = None) -> str:
+    return (rng or random.Random()).choice(state.pending_ids)
