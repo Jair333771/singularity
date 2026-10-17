@@ -1,2 +1,80 @@
 specs/*
 CLAUDE.md
+
+# ==============================================================================
+# 🎯 ARCHIVO .GITIGNORE UNIFICADO: FLUTTER, PYTHON & CLAUDE
+# ==============================================================================
+
+# 🌐 Variables de Entorno y Secretos (Universal)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.secret
+credentials.json
+
+# 🤖 Claude & Anthropic (Contextos, Prompts y Sesiones locales)
+# ------------------------------------------------------------------------------
+.claude/
+claude_session.json
+*.claude.md
+.anthropic/
+anthropic_api_key.*
+
+# 💙 Flutter & Dart
+# ------------------------------------------------------------------------------
+# Dependencias y artefactos de compilación
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+
+# Código autogenerado (Descomentar si prefieres no subir archivos de build_runner)
+# *.freezed.dart
+# *.g.dart
+
+# Archivos específicos de plataformas en Flutter
+/android/.gradle/
+/android/local.properties
+/android/app/緣app.iml
+/android/app/local.properties
+/ios/.symlinks/
+/ios/Pods/
+/ios/DerivedData/
+/linux/flutter/ephemeral/
+/macos/flutter/ephemeral/
+/windows/flutter/ephemeral/
+
+# 🐍 Python
+# ------------------------------------------------------------------------------
+# Entornos virtuales
+venv/
+.venv/
+env/
+.env/
+ENV/
+bin/
+lib/
+include/
+
+# Caché y compilados
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.htmlcov/
+.coverage
+htmlcov/
+
+# 💻 Editores de Código e IDEs (VS Code, Android Studio, JetBrains)
+# ------------------------------------------------------------------------------
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store
