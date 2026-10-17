@@ -1,23 +1,21 @@
-from pathlib import Path
+from typing import Any
 
 import pytest
 
-from engine.bank import QuestionLoader
-from engine.info import InfoCatalog
-from engine.question import QuestionValidator
-
-SAMPLE_BANK = Path(__file__).parents[1] / "bank" / "astrofisica.json"
-INFO_FILE = Path(__file__).parents[1] / "messages" / "info.json"
+from app.domain.question import Question, QuestionValidator
+from app.infrastructure.messages import InfoCatalog
+from app.infrastructure.question_bank import QuestionLoader
+from app.utils import bank, messages
 
 
 @pytest.fixture
-def sample_bank_path() -> Path:
-    return SAMPLE_BANK
+def raw_bank() -> list[dict[str, Any]]:
+    return bank.astrofisica
 
 
 @pytest.fixture
 def catalog() -> InfoCatalog:
-    return InfoCatalog(INFO_FILE)
+    return InfoCatalog(messages.info)
 
 
 @pytest.fixture
@@ -31,5 +29,7 @@ def loader(validator: QuestionValidator, catalog: InfoCatalog) -> QuestionLoader
 
 
 @pytest.fixture
-def sample_questions(loader: QuestionLoader, sample_bank_path: Path):
-    return loader.load(sample_bank_path)
+def sample_questions(
+    loader: QuestionLoader, raw_bank: list[dict[str, Any]]
+) -> list[Question]:
+    return loader.load(raw_bank)

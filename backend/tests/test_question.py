@@ -1,10 +1,12 @@
+from typing import Any
+
 import pytest
 
-from engine.question import Question, QuestionValidator
+from app.domain.question import Question, QuestionValidator
 
 
-def make_question(**overrides):
-    fields = dict(
+def make_question(**overrides: Any) -> Question:
+    fields: dict[str, Any] = dict(
         id="ast-001",
         level=1,
         topic="astrofisica",
@@ -39,7 +41,9 @@ def test_fewer_than_two_options_is_rejected(validator: QuestionValidator):
 
 def test_more_than_four_options_is_rejected(validator: QuestionValidator):
     with pytest.raises(ValueError, match="ast-001"):
-        validator.validate(make_question(options=["a", "b", "c", "d", "e"], correct_index=0))
+        validator.validate(
+            make_question(options=["a", "b", "c", "d", "e"], correct_index=0)
+        )
 
 
 def test_unknown_topic_is_rejected(validator: QuestionValidator):
