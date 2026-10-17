@@ -2,9 +2,8 @@
 
 from fastapi import FastAPI
 
-__all__ = ["create_app"]
+app = FastAPI(title="api.singularity", description="Motor de preguntas proyecto Singularity", version="0.1.0")
 
-
-def create_app() -> FastAPI:
-    """Crea la aplicación con sus rutas y dependencias."""
-    return FastAPI(title="api.singularity", description="Motor de preguntas de Singularity", version="0.1.0")
+@app.get("/health", summary="Verifica el estado de la API preguntas", response_model=dict, tags=["Health"])
+def health():
+    return {"status": "200", "message": "OK"}
