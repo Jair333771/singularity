@@ -1,6 +1,6 @@
 import pytest
 
-from engine.question import Question, validate_question
+from engine.question import Question, QuestionValidator
 
 
 def make_question(**overrides):
@@ -18,35 +18,35 @@ def make_question(**overrides):
     return Question(**fields)
 
 
-def test_valid_question_passes():
-    validate_question(make_question())
+def test_valid_question_passes(validator: QuestionValidator):
+    validator.validate(make_question())
 
 
-def test_draft_status_is_rejected():
+def test_draft_status_is_rejected(validator: QuestionValidator):
     with pytest.raises(ValueError, match="ast-001"):
-        validate_question(make_question(status="draft"))
+        validator.validate(make_question(status="draft"))
 
 
-def test_correct_index_out_of_range_is_rejected():
+def test_correct_index_out_of_range_is_rejected(validator: QuestionValidator):
     with pytest.raises(ValueError, match="ast-001"):
-        validate_question(make_question(correct_index=3))
+        validator.validate(make_question(correct_index=3))
 
 
-def test_fewer_than_two_options_is_rejected():
+def test_fewer_than_two_options_is_rejected(validator: QuestionValidator):
     with pytest.raises(ValueError, match="ast-001"):
-        validate_question(make_question(options=["Sirio"], correct_index=0))
+        validator.validate(make_question(options=["Sirio"], correct_index=0))
 
 
-def test_more_than_four_options_is_rejected():
+def test_more_than_four_options_is_rejected(validator: QuestionValidator):
     with pytest.raises(ValueError, match="ast-001"):
-        validate_question(make_question(options=["a", "b", "c", "d", "e"], correct_index=0))
+        validator.validate(make_question(options=["a", "b", "c", "d", "e"], correct_index=0))
 
 
-def test_unknown_topic_is_rejected():
+def test_unknown_topic_is_rejected(validator: QuestionValidator):
     with pytest.raises(ValueError, match="ast-001"):
-        validate_question(make_question(topic="quimica"))
+        validator.validate(make_question(topic="quimica"))
 
 
-def test_level_out_of_range_is_rejected():
+def test_level_out_of_range_is_rejected(validator: QuestionValidator):
     with pytest.raises(ValueError, match="ast-001"):
-        validate_question(make_question(level=11))
+        validator.validate(make_question(level=11))
