@@ -1,5 +1,7 @@
 import random
 
+import pytest
+
 from engine.session import SessionEngine
 
 
@@ -50,3 +52,57 @@ def test_wrong_answer_keeps_id_pending(sample_questions):
     assert result.correct is False
     assert question.id in result.next_state.pending_ids
     assert result.explanation == question.explanation
+
+
+def answer_all_correctly(engine, state, questions):
+    by_id = {q.id: q for q in questions}
+    while state.status == "in_progress":
+        question = by_id[state.pending_ids[0]]
+        state = engine.answer(state, question, question.correct_index).next_state
+    return state
+
+
+def test_level_stays_in_progress_while_pending_ids_remain(sample_questions):
+    engine = SessionEngine(random.Random(1))
+    state = engine.start(sample_questions)
+    for _ in range(6):
+        question = next(q for q in sample_questions if q.id == state.pending_ids[0])
+        state = engine.answer(state, question, question.correct_index).next_state
+    assert len(state.pending_ids) == 1
+    assert state.status == "in_progress"
+
+
+def test_emptying_pending_ids_completes_level(sample_questions):
+    engine = SessionEngine(random.Random(1))
+    state = answer_all_correctly(engine, engine.start(sample_questions), sample_questions)
+    assert state.pending_ids == []
+    assert state.status == "level_completed"
+    assert state.current_level == 1
+
+
+def test_advance_loads_next_level(sample_questions):
+    engine = SessionEngine(random.Random(1))
+    completed = answer_all_correctly(engine, engine.start(sample_questions), sample_questions)
+    state = engine.advance(completed, sample_questions)
+    assert state.current_level == 2
+    assert state.status == "in_progress"
+    assert state.pending_ids == [q.id for q in sample_questions if q.level == 2]
+
+
+def test_advance_rejected_while_level_in_progress(sample_questions):
+    engine = SessionEngine(random.Random(1))
+    state = engine.start(sample_questions)
+    with pytest.raises(ValueError, match="level 1: not completed"):
+        engine.advance(state, sample_questions)
+
+
+def test_full_game_completes_all_ten_levels(sample_questions):
+    engine = SessionEngine(random.Random(1))
+    state = engine.start(sample_questions)
+    for level in range(1, 11):
+        assert state.current_level == level
+        state = answer_all_correctly(engine, state, sample_questions)
+        if level < 10:
+            assert state.status == "level_completed"
+            state = engine.advance(state, sample_questions)
+    assert state.status == "game_completed"

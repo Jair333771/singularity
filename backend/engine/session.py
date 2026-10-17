@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass, field, replace
 
-from engine.question import Question
+from engine.question import MAX_LEVEL, Question
 
 
 @dataclass
@@ -23,8 +23,13 @@ class SessionEngine:
         self._rng = rng
 
     def start(self, questions: list[Question]) -> SessionState:
-        level_one = [q.id for q in questions if q.level == 1 and q.status == "reviewed"]
-        return SessionState(current_level=1, pending_ids=level_one, status="in_progress")
+        return SessionState(current_level=1, pending_ids=self._reviewed_ids(questions, 1), status="in_progress")
+
+    def advance(self, state: SessionState, questions: list[Question]) -> SessionState:
+        if state.status != "level_completed":
+            raise ValueError(f"level {state.current_level}: not completed")
+        level = state.current_level + 1
+        return SessionState(current_level=level, pending_ids=self._reviewed_ids(questions, level), status="in_progress")
 
     def next_id(self, state: SessionState) -> str:
         return self._rng.choice(state.pending_ids)
@@ -36,5 +41,11 @@ class SessionEngine:
         pending_ids = list(state.pending_ids)
         if correct:
             pending_ids.remove(question.id)
-        next_state = replace(state, pending_ids=pending_ids)
+        status = state.status
+        if not pending_ids:
+            status = "game_completed" if state.current_level == MAX_LEVEL else "level_completed"
+        next_state = replace(state, pending_ids=pending_ids, status=status)
         return AnswerResult(correct=correct, explanation=question.explanation, next_state=next_state)
+
+    def _reviewed_ids(self, questions: list[Question], level: int) -> list[str]:
+        return [q.id for q in questions if q.level == level and q.status == "reviewed"]
