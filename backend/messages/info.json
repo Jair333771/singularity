@@ -1,0 +1,11 @@
+{
+  "QUESTION_FIELDS_INVALID": "{id}: {detail}",
+  "QUESTION_STATUS_NOT_REVIEWED": "{id}: status must be 'reviewed', got '{status}'",
+  "QUESTION_TOPIC_UNKNOWN": "{id}: unknown topic '{topic}'",
+  "QUESTION_LEVEL_OUT_OF_RANGE": "{id}: level {level} out of range",
+  "QUESTION_OPTIONS_COUNT": "{id}: must have {min} to {max} options",
+  "QUESTION_CORRECT_INDEX_OUT_OF_RANGE": "{id}: correct_index {index} out of range",
+  "QUESTION_NOT_PENDING": "{id}: not pending in current level",
+  "LEVEL_NOT_COMPLETED": "level {level}: not completed",
+  "LEVEL_COVERAGE_MISMATCH": "level {level}: expected {expected} reviewed questions, found {found}"
+}

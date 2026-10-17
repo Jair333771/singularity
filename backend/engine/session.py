@@ -1,7 +1,8 @@
 import random
 from dataclasses import dataclass, field, replace
 
-from engine.question import MAX_LEVEL, Question
+from engine.info import Info, InfoCatalog
+from engine.question import MAX_LEVEL, QUESTIONS_PER_LEVEL, Question
 
 
 @dataclass
@@ -19,15 +20,20 @@ class AnswerResult:
 
 
 class SessionEngine:
-    def __init__(self, rng: random.Random) -> None:
+    def __init__(self, rng: random.Random, catalog: InfoCatalog) -> None:
         self._rng = rng
+        self._catalog = catalog
 
     def start(self, questions: list[Question]) -> SessionState:
+        for level in range(1, MAX_LEVEL + 1):
+            found = len(self._reviewed_ids(questions, level))
+            if found != QUESTIONS_PER_LEVEL:
+                raise ValueError(self._catalog.text(Info.LEVEL_COVERAGE_MISMATCH, level=level, expected=QUESTIONS_PER_LEVEL, found=found))
         return SessionState(current_level=1, pending_ids=self._reviewed_ids(questions, 1), status="in_progress")
 
     def advance(self, state: SessionState, questions: list[Question]) -> SessionState:
         if state.status != "level_completed":
-            raise ValueError(f"level {state.current_level}: not completed")
+            raise ValueError(self._catalog.text(Info.LEVEL_NOT_COMPLETED, level=state.current_level))
         level = state.current_level + 1
         return SessionState(current_level=level, pending_ids=self._reviewed_ids(questions, level), status="in_progress")
 
@@ -36,7 +42,7 @@ class SessionEngine:
 
     def answer(self, state: SessionState, question: Question, chosen_index: int) -> AnswerResult:
         if question.id not in state.pending_ids:
-            raise ValueError(f"{question.id}: not pending in current level")
+            raise ValueError(self._catalog.text(Info.QUESTION_NOT_PENDING, id=question.id))
         correct = chosen_index == question.correct_index
         pending_ids = list(state.pending_ids)
         if correct:
